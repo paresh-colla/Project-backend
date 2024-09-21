@@ -2,31 +2,50 @@ const mysql = require('mysql');
 
 const connection = mysql.createConnection({
   host: 'localhost',
-  user: 'root@localhost',
-  password: '123456',
+  user: 'root',
+  password: 'YES',
   database: 'tailor_shop'
 });
 
+// Error Handling Function
+function handleError(err) {
+  console.error('Error:', err);
+}
+
+// Connection End Function
+function endConnection() {
+  connection.end((err) => {
+    if (err) {
+      handleError(err);
+    } else {
+      console.log('Connection closed');
+    }
+  });
+}
+
+// Query Function
+function query(sql, callback) {
+  connection.query(sql, (err, rows) => {
+    if (err) {
+      handleError(err);
+    } else {
+      callback(rows);
+    }
+  });
+}
+
 connection.connect((err) => {
   if (err) {
-    console.error('error connecting:', err);
-    return;
-  }
-  console.log('connected as id ' + connection.threadId);
+    handleError(err);
+  } else {
+    console.log('Connected as id ' + connection.threadId);
 
-  connection.query('SELECT * FROM your_table', (err, rows) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    console.log(rows);
-
-    connection.end((err) => {
-      if (err) {
-        console.error('error closing connection:', err);
-        return;
-      }
-      console.log('connection closed');
+    // Query Example
+    query('SELECT * FROM employee', (rows) => {
+      console.log(rows);
+      // endConnection();
     });
-  });
+  }
 });
+
+module.exports = connection;
